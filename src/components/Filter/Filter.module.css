@@ -1,0 +1,11 @@
+.title {
+    text-transform: capitalize;
+    display: flex;
+    flex-direction: column;
+    margin: 10px auto 0 auto;
+    width: 200px;
+}
+
+.input {
+    margin-top: 5px;
+}
