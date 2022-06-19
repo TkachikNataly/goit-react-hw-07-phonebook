@@ -13,7 +13,6 @@ export default function Filter() {
                 className={s.input}
                 type="text"
                 name="filter"
-                placeholder="Enter some letters to search"
                 value={filter}
                 onChange={e => dispatch(changeFilter(e.target.value))}
             />
