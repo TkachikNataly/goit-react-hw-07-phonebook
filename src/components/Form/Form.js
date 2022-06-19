@@ -1,18 +1,27 @@
 import React, { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { nanoid } from 'nanoid';
-import { addContact, getContacts } from 'redux/contactsSlice';
+// import { useDispatch, useSelector } from 'react-redux';
+// import { nanoid } from 'nanoid';
+// import { addContact, getContacts } from 'redux/contactsSlice';
 import s from './Form.module.css';
 // import PropTypes from 'prop-types';
 
+import { useAddContactMutation } from 'redux/contacts/contactsApi';
+import { useFetchContactsQuery } from 'redux/contacts/contactsApi';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+
+
 export default function Form() {
-    const dispatch = useDispatch();
+    const { data } = useFetchContactsQuery();
+    // const dispatch = useDispatch();
     const [name, setName] = useState('');
     const [number, setNumber] = useState('');
-    const contacts = useSelector(getContacts);
+    const [addContact, { isLoading }] = useAddContactMutation();
+    // const contacts = useSelector(getContacts);
 
-    const inputNameId = nanoid();
-    const inputNumberId = nanoid();
+    // const inputNameId = nanoid();
+    // const inputNumberId = nanoid();
 
 
     const handleChangeName = e => {
@@ -25,23 +34,28 @@ export default function Form() {
 
     };
 
-    const handleSubmit = e => {
+    const handleSubmit = async e => {
         e.preventDefault();
-        contacts.some(contact => contact.name === name)
-            ? alert(`${name} is already in contacts`)
-            : dispatch(addContact({ name, number }));
+        if (
+            data.find(
+                contact =>
+                    contact.name.toLocaleLowerCase() === name.toLocaleLowerCase()
+            )
+        ) {
+            toast.warning(`${name} is alredy in contacts`);
+            return;
+        }
+        await addContact({ name, number });
+        toast.success(`Contact is create!`);
 
-        reset();
-
-    };
-    const reset = () => {
         setName('');
         setNumber('');
     };
+
     return (
         <div>
             <form className={s.form} onSubmit={handleSubmit}>
-                <p className={s.title} htmlFor={inputNameId}>Name</p>
+                <p className={s.title}>Name</p>
                 <input
                     className={s.input}
                     type="text"
@@ -52,7 +66,7 @@ export default function Form() {
                     value={name}
                     onChange={handleChangeName}
                 />
-                <p className={s.title} htmlFor={inputNumberId}>Number</p>
+                <p className={s.title}>Number</p>
                 <input
                     className={s.input}
                     type="tel"
@@ -63,9 +77,21 @@ export default function Form() {
                     value={number}
                     onChange={handleChangeNumber}
                 />
-                <button className={s.button} type="submit">Add Contact</button>
+                <button className={s.button} type="submit" disabled={isLoading}>Add Contact</button>
+                <ToastContainer
+                    autoClose={3000}
+                    hideProgressBar={false}
+                    newestOnTop={false}
+                    closeOnClick
+                    rtl={false}
+                    pauseOnFocusLoss
+                    draggable
+                    pauseOnHover
+                />
             </form>
         </div>
+
+
     );
 }
 // Form.propTypes = {

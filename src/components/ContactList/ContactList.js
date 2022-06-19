@@ -1,47 +1,70 @@
 import React from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { deleteContact, getContacts, getFilter } from "redux/contactsSlice";
+import { useSelector } from 'react-redux';
+import { getFilter } from "redux/contacts/contactSelectors";
 import s from './ContactList.module.css';
-import PropTypes from 'prop-types';
+import { useDeleteContactMutation } from 'redux/contacts/contactsApi';
+import { useFetchContactsQuery } from 'redux/contacts/contactsApi';
+
+// import PropTypes from 'prop-types';
 
 
 export default function ContactList() {
-    const contacts = useSelector(getContacts);
+    const { data, error, isLoading } = useFetchContactsQuery();
     const filter = useSelector(getFilter);
 
-    const getFilteredContacts = () => {
-        const normalizedFilter = filter.toLowerCase();
-
-        return contacts.filter((contact) =>
-            contact.name.toLowerCase().includes(normalizedFilter)
+    const getVisibleContacts =
+        data && data.filter(contact =>
+            contact.name.toLocaleLowerCase().includes(filter.toLocaleLowerCase())
         );
-    };
-    const filteredContacts = getFilteredContacts();
 
-    const dispatch = useDispatch();
+    const [deleteContact, { isLoading: isDeleting }] = useDeleteContactMutation();
+
+    // const getFilteredContacts = () => {
+    //     const normalizedFilter = filter.toLowerCase();
+
+    //     return contacts.filter((contact) =>
+    //         contact.name.toLowerCase().includes(normalizedFilter)
+    //     );
+    // };
+    // const filteredContacts = getFilteredContacts();
+
+    // const dispatch = useDispatch();
     return (
-        <ul className={s.list}>
-            {filteredContacts.map(({ id, name, number }) => (
-                <li key={id} className={s.list__item}>
-                    <p>{name}</p>
-                    <p>{number}</p>
-                    <button className={s.button}
-                        type="button"
-                        onClick={() => dispatch(deleteContact(id))}>
-                        Delete
-                    </button>
-                </li>
-            ))
-            }
-        </ul>
+        <div>
+            {error ? (
+                <h2>
+                    {error.data}
+                </h2>
+            ) : isLoading ? (
+                <h2>Loadong...</h2>
+            ) : getVisibleContacts?.length ? (
+                <ul className={s.list}>
+                    {getVisibleContacts.map(({ id, name, number }) => (
+                        <li key={id} className={s.list__item}>
+                            <p>{name}</p>
+                            <p>{number}</p>
+                            <button className={s.button}
+                                type="button"
+                                onClick={() => deleteContact(id)}>
+                                {isDeleting ? 'Deleting...' : 'Delete'}
+                            </button>
+                        </li>
+                    ))
+                    }
+                </ul>
+            ) : (
+                <h2>No contacts</h2>
+            )}
+        </div>
+
 
     );
 }
 
-ContactList.propTypes = {
-    id: PropTypes.string,
-    name: PropTypes.string,
-    number: PropTypes.string,
-    onDeleteContact: PropTypes.func,
-};
+// ContactList.propTypes = {
+//     id: PropTypes.string,
+//     name: PropTypes.string,
+//     number: PropTypes.string,
+//     onDeleteContact: PropTypes.func,
+// };
 

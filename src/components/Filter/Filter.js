@@ -1,33 +1,22 @@
-import React from 'react';
 import s from './Filter.module.css';
 import { useDispatch, useSelector } from 'react-redux';
-import { changeFilter, getFilter } from 'redux/contactsSlice';
-import { nanoid } from 'nanoid';
-import PropTypes from 'prop-types';
+import { getFilter } from 'redux/contacts/contactSelectors';
+import { changeFilter } from 'redux/contacts/contactActions';
 
 export default function Filter() {
+    const filter = useSelector(getFilter);
     const dispatch = useDispatch();
-    const value = useSelector(getFilter);
-
-    let inputFilterId = nanoid();
-    const onChangeFilter = (e) => dispatch(changeFilter(e.target.value));
-
     return (
-        <div>
-            <label className={s.title} htmlFor={inputFilterId}>
-                find contact by name{' '}
-                <input
-                    className={s.input}
-                    type="text"
-                    value={value}
-                    onChange={onChangeFilter}
-                />{' '}
-            </label>
-        </div>
+        <label className={s.title}>
+            Find contact by name
+            <input
+                className={s.input}
+                type="text"
+                name="filter"
+                placeholder="Enter some letters to search"
+                value={filter}
+                onChange={e => dispatch(changeFilter(e.target.value))}
+            />
+        </label>
     );
-
 }
-Filter.propTypes = {
-    value: PropTypes.string,
-    onChengeFilter: PropTypes.func,
-};
