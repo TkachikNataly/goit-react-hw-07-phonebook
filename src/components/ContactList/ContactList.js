@@ -2,7 +2,7 @@ import React from 'react';
 import { useSelector } from 'react-redux';
 import { getFilter } from "redux/contacts/contactSelectors";
 import s from './ContactList.module.css';
-import { useDeleteContactMutation } from 'redux/contacts/contactsApi';
+import ContactItem from './ContactItem/ContactItem';
 import { useFetchContactsQuery } from 'redux/contacts/contactsApi';
 
 // import PropTypes from 'prop-types';
@@ -16,8 +16,6 @@ export default function ContactList() {
         data && data.filter(contact =>
             contact.name.toLocaleLowerCase().includes(filter.toLocaleLowerCase())
         );
-
-    const [deleteContact, { isLoading: isDeleting }] = useDeleteContactMutation();
 
     // const getFilteredContacts = () => {
     //     const normalizedFilter = filter.toLowerCase();
@@ -36,26 +34,19 @@ export default function ContactList() {
                     {error.data}
                 </h2>
             ) : isLoading ? (
-                <h2>Loadong...</h2>
+                <h2>Loading...</h2>
             ) : getVisibleContacts?.length ? (
                 <ul className={s.list}>
                     {getVisibleContacts.map(({ id, name, number }) => (
-                        <li key={id} className={s.list__item}>
-                            <p>{name}</p>
-                            <p>{number}</p>
-                            <button className={s.button}
-                                type="button"
-                                onClick={() => deleteContact(id)}>
-                                {isDeleting ? 'Deleting...' : 'Delete'}
-                            </button>
-                        </li>
+                        <ContactItem key={id} id={id} name={name} number={number} />
                     ))
                     }
                 </ul>
             ) : (
                 <h2>No contacts</h2>
-            )}
-        </div>
+            )
+            }
+        </div >
 
 
     );
